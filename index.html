@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DentiSalud — Dashboard Comercial Nacional (comercial.dentisalud.com.co)</title>
-    <link rel="canonical" href="https://comercial.dentisalud.com.co" />
+    <link rel="canonical" href="https://dentisaludcol.github.io/tablero-comercial/" />
+    <!-- Microsoft Entra ID (Azure AD) Authentication Library MSAL 2.35.0 -->
+    <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
     <script>
         (function() {
             if (window.location.hostname.endsWith('.ship.place')) {
@@ -78,7 +80,7 @@
 <body class="antialiased min-h-screen p-3 sm:p-5 lg:p-7 select-none">
 
     <!-- ============================================================== -->
-    <!-- PORTAL DE ACCESO SEGURO CORPORATIVO (@dentisalud.com.co)       -->
+    <!-- PORTAL DE ACCESO SEGURO MICROSOFT 365 (@dentisalud.com.co)     -->
     <!-- ============================================================== -->
     <div id="loginPortal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-4 transition-all duration-300">
         <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-md w-full p-6 sm:p-8 text-center relative overflow-hidden">
@@ -97,39 +99,46 @@
 
             <div class="mt-4 p-2.5 bg-blue-50/80 rounded-2xl border border-blue-100 flex items-center justify-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 badge-pulse"></span>
-                <span class="text-xs font-bold text-[#00598F]">Portal de Acceso Corporativo</span>
+                <span class="text-xs font-bold text-[#00598F]">Autenticación Oficial Microsoft 365</span>
             </div>
 
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
-                Información financiera confidencial. Ingrese con su correo institucional <strong>@dentisalud.com.co</strong> y clave directiva autorizada.
+                Información financiera confidencial. Ingresa con tu correo corporativo <strong>@dentisalud.com.co</strong> y tu contraseña de Microsoft con Authenticator.
             </p>
 
-            <form onsubmit="event.preventDefault(); autenticarUsuarioDS();" class="mt-5 space-y-3.5 text-left">
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Correo Corporativo</label>
-                    <input type="email" id="txtInputEmail" required placeholder="tu.nombre@dentisalud.com.co" 
-                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0062C3] text-xs font-medium text-slate-800 placeholder-slate-400 bg-slate-50/50">
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Clave Directiva / PIN</label>
-                    <input type="password" id="txtInputKey" required placeholder="Clave de autorización" 
-                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0062C3] text-xs font-medium text-slate-800 placeholder-slate-400 bg-slate-50/50">
-                </div>
-
-                <button type="submit" id="btnIngresarDS" class="w-full mt-2 bg-[#0062C3] hover:bg-[#004f9e] text-white font-bold py-3 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer text-xs">
-                    <span>Ingresar al Tablero</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            <div class="mt-5 space-y-3">
+                <button type="button" onclick="iniciarSesionM365()" id="btnIniciarM365" class="w-full bg-[#0062C3] hover:bg-[#004f9e] active:scale-[0.98] text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg transition flex items-center justify-center gap-3 cursor-pointer group">
+                    <svg class="w-5 h-5 shrink-0" viewBox="0 0 21 21" fill="none">
+                        <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+                        <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+                        <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+                        <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                    </svg>
+                    <span class="text-xs sm:text-sm font-bold tracking-tight">Iniciar Sesión con Microsoft 365</span>
                 </button>
-            </form>
+                <div class="text-[10px] text-slate-400">
+                    Se validará tu contraseña en Microsoft y la app Authenticator.
+                </div>
+            </div>
 
-            <div id="loginFeedback" class="hidden mt-3 p-2.5 rounded-xl text-xs transition-all text-center"></div>
+            <div id="loginFeedback" class="hidden mt-3 p-3 rounded-xl text-xs transition-all text-center"></div>
 
             <div class="mt-5 pt-3 border-t border-slate-100 flex flex-col items-center gap-1.5">
-                <div class="text-[10px] text-slate-400">
-                    Dominio Oficial: <strong class="text-slate-600">comercial.dentisalud.com.co</strong>
+                <button type="button" onclick="toggleAccesoContingencia()" class="text-[11px] text-slate-500 hover:text-slate-800 underline transition cursor-pointer">
+                    ¿Acceso con clave directiva de contingencia?
+                </button>
+                <div id="panelContingencia" class="hidden w-full mt-2 p-3 bg-slate-50 rounded-xl border border-slate-200 text-left">
+                    <label class="block text-[10px] font-bold text-slate-600 mb-1">Clave Directiva de Respaldo</label>
+                    <div class="flex gap-1.5">
+                        <input type="password" id="txtInputKeyContingencia" placeholder="Clave de autorización" class="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs">
+                        <button type="button" onclick="autenticarContingencia()" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">Entrar</button>
+                    </div>
+                </div>
+                <div class="text-[10px] text-slate-400 mt-2">
+                    Hosting Oficial: <strong class="text-slate-600">comercial.dentisalud.com.co</strong>
                 </div>
                 <div class="text-[9px] text-slate-400 leading-tight">
-                    Acceso exclusivo para directivos autorizados. Prohibida su divulgación. Ley 1273 de 2009.
+                    Acceso exclusivo para directivos autorizados. Inquilino Microsoft DentiSalud S.A.
                 </div>
             </div>
         </div>
@@ -724,40 +733,158 @@
             location.reload();
         }
 
-        function autenticarUsuarioDS() {
-            const emailInput = document.getElementById('txtInputEmail');
-            const keyInput = document.getElementById('txtInputKey');
+        const currentUrl = window.location.href.split('#')[0].split('?')[0];
+        const validRedirectUri = window.location.protocol.startsWith('http') ? currentUrl : "https://dentisaludcol.github.io/tablero-comercial/";
+
+        const msalConfig = {
+            auth: {
+                clientId: "d2c862c1-4c42-4e8f-8929-5717ecc1157b",
+                authority: "https://login.microsoftonline.com/9e912534-d7c8-446e-b3aa-1411b9a91e57",
+                redirectUri: validRedirectUri
+            },
+            cache: {
+                cacheLocation: "localStorage",
+                storeAuthStateInCookie: true
+            }
+        };
+
+        let msalInstance = null;
+        try {
+            if (window.msal && window.location.protocol.startsWith('http')) {
+                msalInstance = new msal.PublicClientApplication(msalConfig);
+            }
+        } catch(e) {
+            console.warn("MSAL init err:", e);
+        }
+
+        async function iniciarSesionM365() {
             const feedback = document.getElementById('loginFeedback');
-            const email = (emailInput ? emailInput.value : '').toLowerCase().trim();
-            const key = (keyInput ? keyInput.value : '').trim();
+            if (feedback) {
+                feedback.classList.remove('hidden');
+                feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-blue-50 text-blue-800 border border-blue-200 text-center font-semibold';
+                feedback.innerHTML = '<span class="inline-block animate-spin mr-1">⌛</span> Conectando con Microsoft Identity DentiSalud...';
+            }
 
-            if (!feedback) return;
-            feedback.classList.remove('hidden');
-
-            if (!email || (!email.endsWith('@dentisalud.com.co') && email !== 'admin@dentisalud.com.co')) {
-                feedback.className = 'mt-3 p-2.5 rounded-xl text-xs bg-rose-50 text-rose-800 border border-rose-200 font-bold';
-                feedback.innerHTML = '❌ Acceso denegado: Ingrese su correo oficial terminado en <strong>@dentisalud.com.co</strong>.';
+            if (window.location.protocol === 'file:') {
+                if (feedback) {
+                    feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-amber-50 text-amber-900 border border-amber-200 text-center font-medium leading-relaxed';
+                    feedback.innerHTML = '⚠️ <b>Aviso de Ejecución Local:</b><br>Microsoft 365 requiere un protocolo web (<code>https://</code>) para validar identidades corporativas y no permite autenticación desde archivos en disco local (<code>file://</code>).<br><br>👉 Para probar aquí en tu PC, ingresa con la <b>Clave Directiva de Respaldo</b> abajo.<br>👉 Para probar con tu cuenta <b>@dentisalud.com.co</b>, ábrelo en el enlace web publicado en internet.';
+                }
+                toggleAccesoContingencia(true);
                 return;
             }
+
+            if (!msalInstance && window.msal) {
+                try { msalInstance = new msal.PublicClientApplication(msalConfig); } catch(e) {}
+            }
+
+            if (!msalInstance) {
+                if (feedback) {
+                    feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-amber-50 text-amber-800 border border-amber-200 font-bold';
+                    feedback.innerHTML = '⚠️ La librería de Microsoft no cargó. Usa la clave directiva de respaldo abajo.';
+                }
+                toggleAccesoContingencia(true);
+                return;
+            }
+
+            try {
+                const res = await msalInstance.loginPopup({
+                    scopes: ["user.read"],
+                    prompt: "select_account"
+                });
+                procesarCuentaAutenticada(res.account);
+            } catch(err) {
+                console.warn("LoginPopup err:", err);
+                if (err.errorCode === 'popup_window_error' || (err.message && err.message.includes('popup'))) {
+                    if (feedback) {
+                        feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-amber-50 text-amber-800 border border-amber-200 text-center font-semibold';
+                        feedback.innerHTML = 'Ventana emergente bloqueada. Redirigiendo a Microsoft...';
+                    }
+                    setTimeout(() => {
+                        msalInstance.loginRedirect({ scopes: ["user.read"] });
+                    }, 500);
+                } else if (err.errorCode === 'user_cancelled') {
+                    if (feedback) {
+                        feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-slate-100 text-slate-700 text-center';
+                        feedback.innerHTML = 'Inicio de sesión cancelado por el usuario.';
+                    }
+                } else if (err.message && (err.message.includes('AADSTS50011') || err.message.includes('redirect_uri'))) {
+                    if (feedback) {
+                        feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-rose-50 text-rose-800 border border-rose-200 text-center font-bold';
+                        feedback.innerHTML = '❌ URL no autorizada aún en Azure. Pide a TI agregar https://dentisaludcol.github.io/tablero-comercial/ en Azure o usa la clave de respaldo.';
+                    }
+                    toggleAccesoContingencia(true);
+                } else {
+                    if (feedback) {
+                        feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-rose-50 text-rose-800 border border-rose-200 text-center';
+                        feedback.innerHTML = 'Error de autenticación: ' + (err.errorMessage || err.message || 'Intente nuevamente.');
+                    }
+                }
+            }
+        }
+
+        function procesarCuentaAutenticada(account) {
+            const feedback = document.getElementById('loginFeedback');
+            if (!account) return;
+            const email = (account.username || account.name || '').toLowerCase().trim();
+            if (email.endsWith("@dentisalud.com.co")) {
+                const rawName = (account.name || email.split('@')[0]).replace(/[._-]/g, ' ');
+                const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+                localStorage.setItem('ds_auth_user', email);
+                localStorage.setItem('ds_auth_name', displayName);
+                if (feedback) {
+                    feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 text-center font-bold';
+                    feedback.innerHTML = '✓ Identidad confirmada: ' + displayName + ' (' + email + '). Accediendo...';
+                }
+                setTimeout(() => {
+                    desbloquearBoveda(email, displayName);
+                }, 400);
+            } else {
+                if (feedback) {
+                    feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-rose-50 text-rose-800 border border-rose-200 text-center font-bold';
+                    feedback.innerHTML = '❌ Acceso denegado: La cuenta "' + email + '" no pertenece a la organización @dentisalud.com.co.';
+                }
+                if (msalInstance) {
+                    try { msalInstance.logoutPopup(); } catch(e) {}
+                }
+            }
+        }
+
+        function toggleAccesoContingencia(forzarAbrir) {
+            const panel = document.getElementById('panelContingencia');
+            if (!panel) return;
+            if (forzarAbrir === true) {
+                panel.classList.remove('hidden');
+            } else {
+                panel.classList.toggle('hidden');
+            }
+        }
+
+        function autenticarContingencia() {
+            const input = document.getElementById('txtInputKeyContingencia');
+            const key = input ? input.value.trim() : '';
+            const feedback = document.getElementById('loginFeedback');
+            if (feedback) feedback.classList.remove('hidden');
 
             const clavesValidas = ["DentiSalud2026*", "dentisalud2026", "Dentisalud2026", "2026*", "DentiSalud*"];
-            if (!clavesValidas.includes(key)) {
-                feedback.className = 'mt-3 p-2.5 rounded-xl text-xs bg-amber-50 text-amber-800 border border-amber-200 font-bold';
-                feedback.innerHTML = '❌ Clave de acceso directiva incorrecta. Verifique con la Dirección de Tecnología o Comercial.';
-                return;
+            if (clavesValidas.includes(key)) {
+                const email = 'directivo@dentisalud.com.co';
+                const displayName = 'Acceso Directivo';
+                localStorage.setItem('ds_auth_user', email);
+                localStorage.setItem('ds_auth_name', displayName);
+                if (feedback) {
+                    feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 text-center font-bold';
+                    feedback.innerHTML = '✓ Clave de contingencia validada. Accediendo...';
+                }
+                setTimeout(() => {
+                    desbloquearBoveda(email, displayName);
+                }, 300);
+            } else {
+                if (feedback) {
+                    feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-rose-50 text-rose-800 border border-rose-200 text-center font-bold';
+                    feedback.innerHTML = '❌ Clave directiva incorrecta.';
+                }
             }
-
-            const rawName = email.split('@')[0].replace(/[._-]/g, ' ');
-            const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
-            localStorage.setItem('ds_auth_user', email);
-            localStorage.setItem('ds_auth_name', displayName);
-
-            feedback.className = 'mt-3 p-2.5 rounded-xl text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold';
-            feedback.innerHTML = '✓ Credenciales verificadas. Accediendo al tablero...';
-
-            setTimeout(() => {
-                desbloquearBoveda(email, displayName);
-            }, 300);
         }
 
         let modoActual = 'ACUMULADO'; // 'DIA' o 'ACUMULADO'
@@ -767,11 +894,23 @@
         let filtroZona = 'TODAS';
         let filtroSede = 'TODAS';
 
-        // Validación automática de sesión al cargar
-        window.addEventListener('DOMContentLoaded', () => {
+        // Manejo automático de retorno tras redirect y persistencia de sesión
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (msalInstance) {
+                try {
+                    const redirectResponse = await msalInstance.handleRedirectPromise();
+                    if (redirectResponse && redirectResponse.account) {
+                        procesarCuentaAutenticada(redirectResponse.account);
+                        return;
+                    }
+                } catch(e) {
+                    console.warn("Handle redirect err:", e);
+                }
+            }
+
             const cachedUser = localStorage.getItem('ds_auth_user');
             const cachedName = localStorage.getItem('ds_auth_name');
-            if (cachedUser && (cachedUser.toLowerCase().endsWith('@dentisalud.com.co') || cachedUser.toLowerCase() === 'admin@dentisalud.com.co')) {
+            if (cachedUser && (cachedUser.toLowerCase().endsWith('@dentisalud.com.co') || cachedUser.toLowerCase() === 'directivo@dentisalud.com.co')) {
                 desbloquearBoveda(cachedUser, cachedName);
             }
         });
