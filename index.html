@@ -730,7 +730,7 @@
                 localStorage.setItem('ds_auth_name', displayName);
 
                 const inicioSesion = parseInt(localStorage.getItem('ds_auth_time') || ahora.toString(), 10);
-                const tiempoRestante = Math.max(1000, (1 * 60 * 1000) - (ahora - inicioSesion));
+                const tiempoRestante = Math.max(1000, (30 * 60 * 1000) - (ahora - inicioSesion));
                 iniciarTemporizadorExpiracion(tiempoRestante);
 
                 poblarSelectorSedes();
@@ -745,7 +745,7 @@
         function iniciarTemporizadorExpiracion(milisegundos) {
             if (__sessionTimerId) clearTimeout(__sessionTimerId);
             __sessionTimerId = setTimeout(() => {
-                alert("⏰ Tu sesión ha expirado por seguridad corporativa (límite de prueba de 1 minuto transcurrido). Por favor inicia sesión nuevamente.");
+                alert("⏰ Tu sesión ha expirado por seguridad corporativa (límite de 30 minutos transcurrido). Por favor inicia sesión nuevamente.");
                 cerrarSesion();
             }, milisegundos);
         }
@@ -963,7 +963,7 @@
                 }
             }
 
-            const SESSION_MAX_AGE_MS = 1 * 60 * 1000; // 1 minuto (modo de pruebas)
+            const SESSION_MAX_AGE_MS = 30 * 60 * 1000; // 30 minutos (tiempo oficial de producción)
             const cachedUser = localStorage.getItem('ds_auth_user');
             const cachedName = localStorage.getItem('ds_auth_name');
             const cachedTime = parseInt(localStorage.getItem('ds_auth_time') || '0', 10);
