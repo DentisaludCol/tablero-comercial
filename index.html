@@ -173,7 +173,7 @@
                         <div id="userBadgeHeader" class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                             <span id="txtUserLogged">Autenticado M365</span>
-                            <button onclick="cerrarSesion()" class="ml-1 text-slate-400 hover:text-rose-600 transition font-bold" title="Cerrar Sesión">✕</button>
+                            <button onclick="cerrarSesion()" class="ml-1.5 px-2 py-0.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-[10px] cursor-pointer transition shadow-2xs" title="Cerrar Sesión">Cerrar Sesión ✕</button>
                         </div>
                     </div>
                     <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
@@ -730,7 +730,7 @@
                 localStorage.setItem('ds_auth_name', displayName);
 
                 const inicioSesion = parseInt(localStorage.getItem('ds_auth_time') || ahora.toString(), 10);
-                const tiempoRestante = Math.max(1000, (30 * 60 * 1000) - (ahora - inicioSesion));
+                const tiempoRestante = Math.max(1000, (1 * 60 * 1000) - (ahora - inicioSesion));
                 iniciarTemporizadorExpiracion(tiempoRestante);
 
                 poblarSelectorSedes();
@@ -745,7 +745,7 @@
         function iniciarTemporizadorExpiracion(milisegundos) {
             if (__sessionTimerId) clearTimeout(__sessionTimerId);
             __sessionTimerId = setTimeout(() => {
-                alert("⏰ Tu sesión ha expirado por seguridad corporativa (límite de 30 minutos transcurrido). Por favor inicia sesión nuevamente.");
+                alert("⏰ Tu sesión ha expirado por seguridad corporativa (límite de prueba de 1 minuto transcurrido). Por favor inicia sesión nuevamente.");
                 cerrarSesion();
             }, milisegundos);
         }
@@ -963,7 +963,7 @@
                 }
             }
 
-            const SESSION_MAX_AGE_MS = 30 * 60 * 1000; // 30 minutos
+            const SESSION_MAX_AGE_MS = 1 * 60 * 1000; // 1 minuto (modo de pruebas)
             const cachedUser = localStorage.getItem('ds_auth_user');
             const cachedName = localStorage.getItem('ds_auth_name');
             const cachedTime = parseInt(localStorage.getItem('ds_auth_time') || '0', 10);
