@@ -828,27 +828,22 @@
             }
 
             try {
-                const res = await msalInstance.loginPopup({
+                // Usar loginRedirect como estándar oficial empresarial (evita bloqueos de ventanas emergentes en Chrome/Edge)
+                await msalInstance.loginRedirect({
                     scopes: ["user.read"],
                     prompt: "select_account"
                 });
-                procesarCuentaAutenticada(res.account);
             } catch(err) {
-                console.warn("LoginPopup err:", err);
-                if (err.errorCode === 'popup_window_error' || (err.message && err.message.includes('popup'))) {
-                    if (feedback) {
-                        feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-amber-50 text-amber-800 border border-amber-200 text-center font-semibold';
-                        feedback.innerHTML = 'Ventana emergente bloqueada. Redirigiendo a Microsoft...';
-                    }
-                    setTimeout(() => {
-                        msalInstance.loginRedirect({ scopes: ["user.read"] });
-                    }, 500);
-                } else if (err.errorCode === 'user_cancelled') {
-                    if (feedback) {
-                        feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-slate-100 text-slate-700 text-center';
-                        feedback.innerHTML = 'Inicio de sesión cancelado por el usuario.';
-                    }
-                } else if (err.message && (err.message.includes('AADSTS50011') || err.message.includes('redirect_uri'))) {
+                console.warn("loginRedirect err:", err);
+                if (err.errorCode === 'interaction_in_progress') {
+                    sessionStorage.clear();
+                    try {
+                        await msalInstance.loginRedirect({ scopes: ["user.read"], prompt: "select_account" });
+                        return;
+                    } catch(e) {}
+                }
+
+                if (err.message && (err.message.includes('AADSTS50011') || err.message.includes('redirect_uri'))) {
                     if (feedback) {
                         feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-rose-50 text-rose-800 border border-rose-200 text-center font-bold';
                         feedback.innerHTML = '❌ URL no autorizada aún en Azure. Pide a TI agregar https://dentisaludcol.github.io/tablero-comercial/ en Azure o usa la clave de respaldo.';
@@ -857,7 +852,7 @@
                 } else {
                     if (feedback) {
                         feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-rose-50 text-rose-800 border border-rose-200 text-center';
-                        feedback.innerHTML = 'Error de autenticación: ' + (err.errorMessage || err.message || 'Intente nuevamente.');
+                        feedback.innerHTML = 'Error de conexión: ' + (err.errorMessage || err.message || 'Intente nuevamente.');
                     }
                 }
             }
