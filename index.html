@@ -147,7 +147,7 @@
     <!-- ============================================================== -->
     <!-- CONTENEDOR PRINCIPAL DEL DASHBOARD (Oculto hasta autenticar)   -->
     <!-- ============================================================== -->
-    <div id="dashboardApp" class="hidden max-w-[1720px] mx-auto space-y-5">
+    <div id="dashboardApp" style="display: none !important;" class="max-w-[1720px] mx-auto space-y-5">
 
         <!-- CABECERA INSTITUCIONAL EJECUTIVA -->
         <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
@@ -711,8 +711,11 @@
 
                 const portal = document.getElementById('loginPortal');
                 const app = document.getElementById('dashboardApp');
-                if (portal) portal.classList.add('hidden');
-                if (app) app.classList.remove('hidden');
+                if (portal) portal.style.setProperty('display', 'none', 'important');
+                if (app) {
+                    app.style.setProperty('display', 'block', 'important');
+                    app.classList.remove('hidden');
+                }
 
                 const displayName = name || (email ? email.split('@')[0] : 'Directivo');
                 const userTag = document.getElementById('txtUserLogged');
@@ -777,7 +780,7 @@
 
         const msalConfig = {
             auth: {
-                clientId: "f22da614-4634-4c31-8097-8bed51f19701",
+                clientId: "d2c862c1-4c42-4e8f-8929-5717ecc1157b",
                 authority: "https://login.microsoftonline.com/9e912534-d7c8-446e-b3aa-1411b9a91e57",
                 redirectUri: validRedirectUri
             },
@@ -862,28 +865,20 @@
             const feedback = document.getElementById('loginFeedback');
             if (!account) return;
             const email = (account.username || account.name || '').toLowerCase().trim();
-            if (email.endsWith("@dentisalud.com.co")) {
-                const rawName = (account.name || email.split('@')[0]).replace(/[._-]/g, ' ');
-                const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
-                localStorage.setItem('ds_auth_user', email);
-                localStorage.setItem('ds_auth_name', displayName);
-                localStorage.setItem('ds_auth_time', Date.now().toString());
-                if (feedback) {
-                    feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 text-center font-bold';
-                    feedback.innerHTML = '✓ Identidad confirmada: ' + displayName + ' (' + email + '). Accediendo...';
-                }
-                setTimeout(() => {
-                    desbloquearBoveda(email, displayName);
-                }, 400);
-            } else {
-                if (feedback) {
-                    feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-rose-50 text-rose-800 border border-rose-200 text-center font-bold';
-                    feedback.innerHTML = '❌ Acceso denegado: La cuenta "' + email + '" no pertenece a la organización @dentisalud.com.co.';
-                }
-                if (msalInstance) {
-                    try { msalInstance.logoutPopup(); } catch(e) {}
-                }
+            const rawName = (account.name || email.split('@')[0]).replace(/[._-]/g, ' ');
+            const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+            localStorage.setItem('ds_auth_user', email);
+            localStorage.setItem('ds_auth_name', displayName);
+            localStorage.setItem('ds_auth_time', Date.now().toString());
+            if (feedback) {
+                feedback.classList.remove('hidden');
+                feedback.style.display = 'block';
+                feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 text-center font-bold';
+                feedback.innerHTML = '✓ Identidad validada por Microsoft: ' + displayName + ' (' + email + '). Accediendo...';
             }
+            setTimeout(() => {
+                desbloquearBoveda(email, displayName);
+            }, 300);
         }
 
         function toggleAccesoContingencia(forzarAbrir) {
@@ -947,6 +942,24 @@
                     }
                 } catch(e) {
                     console.warn("Handle redirect err:", e);
+                    const feedback = document.getElementById('loginFeedback');
+                    if (feedback) {
+                        feedback.classList.remove('hidden');
+                        feedback.style.display = 'block';
+                        if (e.message && e.message.includes('AADSTS50105')) {
+                            feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-rose-50 text-rose-800 border border-rose-200 text-center font-bold';
+                            feedback.innerHTML = '❌ Acceso Denegado por Azure: Tu cuenta no tiene permisos asignados por el administrador para ver este tablero.';
+                        } else if (e.message && e.message.includes('AADSTS50011')) {
+                            feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-rose-50 text-rose-800 border border-rose-200 text-center font-bold';
+                            feedback.innerHTML = '❌ Error de URL en Azure. Pide a TI verificar el Redirect URI https://dentisaludcol.github.io/tablero-comercial/';
+                        } else {
+                            feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-rose-50 text-rose-800 border border-rose-200 text-center';
+                            feedback.innerHTML = 'Error de autenticación: ' + (e.errorMessage || e.message || 'Intente nuevamente.');
+                        }
+                    }
+                    if (e.errorCode === 'interaction_in_progress') {
+                        sessionStorage.clear();
+                    }
                 }
             }
 
@@ -957,9 +970,7 @@
             const tiempoTranscurrido = Date.now() - cachedTime;
 
             if (cachedUser && cachedTime > 0 && (tiempoTranscurrido < SESSION_MAX_AGE_MS)) {
-                if (cachedUser.toLowerCase().endsWith('@dentisalud.com.co') || cachedUser.toLowerCase() === 'directivo@dentisalud.com.co') {
-                    desbloquearBoveda(cachedUser, cachedName);
-                }
+                desbloquearBoveda(cachedUser, cachedName);
             } else if (cachedUser) {
                 localStorage.removeItem('ds_auth_user');
                 localStorage.removeItem('ds_auth_name');
