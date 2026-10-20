@@ -742,9 +742,7 @@
         function iniciarTemporizadorExpiracion(milisegundos) {
             if (__sessionTimerId) clearTimeout(__sessionTimerId);
             __sessionTimerId = setTimeout(() => {
-                alert("⏳ Tu sesión ha expirado por seguridad corporativa (límite de 30 minutos transcurrido).
-
-Por favor inicia sesión nuevamente.");
+                alert("⏰ Tu sesión ha expirado por seguridad corporativa (límite de 30 minutos transcurrido). Por favor inicia sesión nuevamente.");
                 cerrarSesion();
             }, milisegundos);
         }
@@ -766,8 +764,16 @@ Por favor inicia sesión nuevamente.");
             location.reload();
         }
 
-        const currentUrl = window.location.href.split('#')[0].split('?')[0];
-        const validRedirectUri = window.location.protocol.startsWith('http') ? currentUrl : "https://dentisaludcol.github.io/tablero-comercial/";
+        let validRedirectUri = "https://dentisaludcol.github.io/tablero-comercial/";
+        if (window.location.hostname === 'dentisaludcol.github.io') {
+            validRedirectUri = "https://dentisaludcol.github.io/tablero-comercial/";
+        } else if (window.location.hostname === 'comercial.dentisalud.com.co') {
+            validRedirectUri = "https://comercial.dentisalud.com.co/";
+        } else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            validRedirectUri = window.location.origin + window.location.pathname;
+        } else if (window.location.protocol.startsWith('http')) {
+            validRedirectUri = window.location.href.split('#')[0].split('?')[0];
+        }
 
         const msalConfig = {
             auth: {
@@ -794,6 +800,7 @@ Por favor inicia sesión nuevamente.");
             const feedback = document.getElementById('loginFeedback');
             if (feedback) {
                 feedback.classList.remove('hidden');
+                feedback.style.display = 'block';
                 feedback.className = 'mt-3 p-3 rounded-xl text-xs bg-blue-50 text-blue-800 border border-blue-200 text-center font-semibold';
                 feedback.innerHTML = '<span class="inline-block animate-spin mr-1">⌛</span> Conectando con Microsoft Identity DentiSalud...';
             }
@@ -931,6 +938,11 @@ Por favor inicia sesión nuevamente.");
 
         // Manejo automático de retorno tras redirect y persistencia de sesión (máximo 30 minutos)
         window.addEventListener('DOMContentLoaded', async () => {
+            const btn = document.getElementById('btnIniciarM365');
+            if (btn) {
+                btn.onclick = iniciarSesionM365;
+            }
+
             if (msalInstance) {
                 try {
                     const redirectResponse = await msalInstance.handleRedirectPromise();
