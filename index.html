@@ -869,10 +869,23 @@
             if (!account) return;
             const email = (account.username || account.name || '').toLowerCase().trim();
             const rawName = (account.name || email.split('@')[0]).replace(/[._-]/g, ' ');
-            const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+            const displayName = (account.name ? account.name.trim().toUpperCase() : (rawName.charAt(0).toUpperCase() + rawName.slice(1)));
             localStorage.setItem('ds_auth_user', email);
             localStorage.setItem('ds_auth_name', displayName);
             localStorage.setItem('ds_auth_time', Date.now().toString());
+
+            const ssoEquiposReturn = localStorage.getItem('ds_sso_equipos_return');
+            if (ssoEquiposReturn) {
+                localStorage.removeItem('ds_sso_equipos_return');
+                const payloadSso = btoa(unescape(encodeURIComponent(JSON.stringify({
+                    name: displayName,
+                    email: email,
+                    ts: Date.now()
+                }))));
+                window.location.replace(ssoEquiposReturn.split('#')[0] + '#ms365_sso=' + encodeURIComponent(payloadSso));
+                return;
+            }
+
             if (feedback) {
                 feedback.classList.remove('hidden');
                 feedback.style.display = 'block';
@@ -936,6 +949,13 @@
                 btn.onclick = iniciarSesionM365;
             }
 
+            const urlParams = new URLSearchParams(window.location.search);
+            const ssoEqParam = urlParams.get('sso_equipos');
+            if (ssoEqParam) {
+                localStorage.setItem('ds_sso_equipos_return', ssoEqParam);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
             if (msalInstance) {
                 try {
                     const redirectResponse = await msalInstance.handleRedirectPromise();
@@ -971,6 +991,11 @@
             const cachedName = localStorage.getItem('ds_auth_name');
             const cachedTime = parseInt(localStorage.getItem('ds_auth_time') || '0', 10);
             const tiempoTranscurrido = Date.now() - cachedTime;
+
+            if (ssoEqParam) {
+                setTimeout(() => iniciarSesionM365(), 150);
+                return;
+            }
 
             if (cachedUser && cachedTime > 0 && (tiempoTranscurrido < SESSION_MAX_AGE_MS)) {
                 desbloquearBoveda(cachedUser, cachedName);
