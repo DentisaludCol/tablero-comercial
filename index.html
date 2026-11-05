@@ -1721,12 +1721,178 @@
             }
         }
 
+
         function cambiarModo(nuevoModo) {
             modoActual = nuevoModo;
-            document.getElementById('tabDia').classList.toggle('active', modoActual === 'DIA');
-            document.getElementById('tabAcumulado').classList.toggle('active', modoActual === 'ACUMULADO');
-            actualizarDashboard();
+            const tKpis = document.getElementById('tabKpis');
+            const tEficacia = document.getElementById('tabEficacia');
+            const tAcum = document.getElementById('tabAcumulado');
+            const tDia = document.getElementById('tabDia');
+
+            if (tKpis) tKpis.classList.toggle('active', modoActual === 'KPIS_DIRECCION');
+            if (tEficacia) tEficacia.classList.toggle('active', modoActual === 'MODELO_EFICACIA');
+            if (tAcum) tAcum.classList.toggle('active', modoActual === 'ACUMULADO');
+            if (tDia) tDia.classList.toggle('active', modoActual === 'DIA');
+
+            const cKpis = document.getElementById('contenedorKpisDireccion');
+            const cEficacia = document.getElementById('contenedorModeloEficacia');
+            const cOperativo = document.getElementById('contenedorOperativoComercial');
+
+            if (modoActual === 'KPIS_DIRECCION') {
+                if (cKpis) cKpis.classList.remove('hidden');
+                if (cEficacia) cEficacia.classList.add('hidden');
+                if (cOperativo) cOperativo.classList.add('hidden');
+                renderKpisDireccion();
+            } else if (modoActual === 'MODELO_EFICACIA') {
+                if (cKpis) cKpis.classList.add('hidden');
+                if (cEficacia) cEficacia.classList.remove('hidden');
+                if (cOperativo) cOperativo.classList.add('hidden');
+                renderModeloEficacia();
+            } else {
+                if (cKpis) cKpis.classList.add('hidden');
+                if (cEficacia) cEficacia.classList.add('hidden');
+                if (cOperativo) cOperativo.classList.remove('hidden');
+                actualizarDashboard();
+            }
         }
+
+        function renderKpisDireccion() {
+            if (!KPIS_DIRECCION || !KPIS_DIRECCION.ventas) return;
+            const k = KPIS_DIRECCION;
+
+            let sedesFiltradas = SEDES.filter(s => {
+                if (filtroTipoOperacion !== 'TODAS' && s.tipo !== filtroTipoOperacion) return false;
+                if (filtroZona !== 'TODAS' && s.zona_key !== filtroZona) return false;
+                if (filtroSede !== 'TODAS' && s.nombre !== filtroSede) return false;
+                return true;
+            });
+
+            const hayFiltro = filtroTipoOperacion !== 'TODAS' || filtroZona !== 'TODAS' || filtroSede !== 'TODAS';
+
+            let vReal = k.ventas.real;
+            let vMeta = k.ventas.meta;
+            let vProy = k.ventas.proyectado;
+            let cIni = k.conversion.iniciadas;
+            let cFin = k.conversion.finalizadas;
+            let numSedes = k.productividad.total_sedes;
+
+            if (hayFiltro && sedesFiltradas.length > 0) {
+                vReal = sedesFiltradas.reduce((a, s) => a + (s.acum_neto || 0), 0);
+                vMeta = sedesFiltradas.reduce((a, s) => a + (s.acum_meta || 0), 0);
+                vProy = sedesFiltradas.reduce((a, s) => a + (s.acum_proy || 0), 0);
+                cIni = sedesFiltradas.reduce((a, s) => a + (s.acum_iniciadas || 0), 0);
+                cFin = sedesFiltradas.reduce((a, s) => a + (s.acum_finalizadas || 0), 0);
+                numSedes = sedesFiltradas.length;
+            }
+
+            const vPct = vMeta > 0 ? (vReal / vMeta) * 100 : 0;
+            const vGap = vReal - vMeta;
+            const convPct = cFin > 0 ? (cIni / cFin) * 100 : 0;
+            const convGap = convPct - 35.0;
+            const prodRealSede = numSedes > 0 ? vReal / numSedes : 0;
+            const prodMetaSede = numSedes > 0 ? vMeta / numSedes : 0;
+            const prodProySede = numSedes > 0 ? vProy / numSedes : 0;
+
+            const elem1R = document.getElementById('lblKpi1Real'); if (elem1R) elem1R.innerText = formatCOP(vReal);
+            const elem1M = document.getElementById('lblKpi1Meta'); if (elem1M) elem1M.innerText = formatCOP(vMeta);
+            const elem1P = document.getElementById('lblKpi1Pct'); if (elem1P) elem1P.innerText = vPct.toFixed(1) + '%';
+            const bar1 = document.getElementById('barKpi1'); if (bar1) bar1.style.width = Math.min(vPct, 100).toFixed(1) + '%';
+            const elem1G = document.getElementById('lblKpi1Gap');
+            if (elem1G) {
+                elem1G.innerText = (vGap >= 0 ? '+' : '') + formatCOP(vGap);
+                elem1G.className = (vGap >= 0 ? 'text-emerald-700' : 'text-rose-600') + ' font-bold';
+            }
+            const elem1Pr = document.getElementById('lblKpi1Proy');
+            if (elem1Pr) elem1Pr.innerText = formatCOP(vProy) + ' (' + (vMeta > 0 ? (vProy / vMeta * 100).toFixed(1) : '100') + '%)';
+
+            const ebMetaVal = vMeta * 0.142;
+            const ebProyVal = vProy * 0.142;
+            const elem2M = document.getElementById('lblKpi2Meta'); if (elem2M) elem2M.innerText = formatCOP(ebMetaVal);
+            const elem2P = document.getElementById('lblKpi2Proy'); if (elem2P) elem2P.innerText = formatCOP(ebProyVal) + ' COP';
+
+            const elem3R = document.getElementById('lblKpi3Real'); if (elem3R) elem3R.innerText = convPct.toFixed(1) + '%';
+            const bar3 = document.getElementById('barKpi3'); if (bar3) bar3.style.width = Math.min((convPct / 35.0) * 100, 100).toFixed(1) + '%';
+            const elem3S = document.getElementById('lblKpi3Sub'); if (elem3S) elem3S.innerText = `${cIni.toLocaleString()} de ${cFin.toLocaleString()} finalizadas`;
+            const badgeKpi3 = document.getElementById('badgeKpi3');
+            if (badgeKpi3) {
+                badgeKpi3.innerText = (convGap >= 0 ? '+' : '') + convGap.toFixed(1) + ' pts';
+                badgeKpi3.className = convGap >= 0
+                    ? 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200';
+            }
+
+            const elem4R = document.getElementById('lblKpi4Real'); if (elem4R) elem4R.innerText = k.ocupacion.pct.toFixed(1) + '%';
+            const bar4 = document.getElementById('barKpi4'); if (bar4) bar4.style.width = Math.min(k.ocupacion.pct, 100).toFixed(1) + '%';
+            const elem4S = document.getElementById('lblKpi4Sub'); if (elem4S) elem4S.innerText = `${k.ocupacion.total_citas.toLocaleString()} citas analizadas`;
+
+            const elem5R = document.getElementById('lblKpi5Real'); if (elem5R) elem5R.innerText = k.tiempo_acceso.dias.toFixed(1);
+            const elem6R = document.getElementById('lblKpi6Real'); if (elem6R) elem6R.innerText = k.nps.score.toFixed(1);
+
+            const elem7R = document.getElementById('lblKpi7Real'); if (elem7R) elem7R.innerText = formatCOP(prodRealSede);
+            const elem7M = document.getElementById('lblKpi7Meta'); if (elem7M) elem7M.innerText = formatCOP(prodMetaSede) + ' / sede';
+            const elem7P = document.getElementById('lblKpi7Proy'); if (elem7P) elem7P.innerText = formatCOP(prodProySede) + ' / sede';
+        }
+
+        function renderModeloEficacia() {
+            if (!MODELO_EFICACIA || !MODELO_EFICACIA.mix) return;
+            const m = MODELO_EFICACIA;
+
+            let sedesFiltradas = SEDES.filter(s => {
+                if (filtroTipoOperacion !== 'TODAS' && s.tipo !== filtroTipoOperacion) return false;
+                if (filtroZona !== 'TODAS' && s.zona_key !== filtroZona) return false;
+                if (filtroSede !== 'TODAS' && s.nombre !== filtroSede) return false;
+                return true;
+            });
+
+            const hayFiltro = filtroTipoOperacion !== 'TODAS' || filtroZona !== 'TODAS' || filtroSede !== 'TODAS';
+
+            let pa = m.mix.primer_abono.valor;
+            let sa = m.mix.segundo_abono.valor;
+            let cart = m.mix.cartera.valor;
+            let totMeta = m.reexpresion_gap.meta_total;
+            let recActual = m.reexpresion_gap.recaudo_actual;
+            let numSedes = m.citas_produccion.escenario_150k.citas_dia_sede ? 33 : 37;
+
+            if (hayFiltro && sedesFiltradas.length > 0) {
+                pa = sedesFiltradas.reduce((a, s) => a + (s.acum_primer_abono || 0), 0);
+                sa = sedesFiltradas.reduce((a, s) => a + (s.acum_segundo_abono || 0), 0);
+                cart = sedesFiltradas.reduce((a, s) => a + (s.acum_cartera || 0), 0);
+                totMeta = sedesFiltradas.reduce((a, s) => a + (s.acum_meta || 0), 0);
+                recActual = sedesFiltradas.reduce((a, s) => a + (s.acum_neto || 0), 0);
+                numSedes = sedesFiltradas.length;
+            }
+
+            const totalPal = pa + sa + cart;
+            const pctPa = totalPal > 0 ? (pa / totalPal) * 100 : 0;
+            const pctSa = totalPal > 0 ? (sa / totalPal) * 100 : 0;
+            const pctCart = totalPal > 0 ? (cart / totalPal) * 100 : 0;
+
+            const elPaM = document.getElementById('lblEfPaMonto'); if (elPaM) elPaM.innerText = formatCOP(pa);
+            const elPaP = document.getElementById('lblEfPaPct'); if (elPaP) elPaP.innerText = pctPa.toFixed(1) + '% (' + (pctPa >= 54.0 ? '+' : '') + (pctPa - 54.0).toFixed(1) + ' pts)';
+            const elSaM = document.getElementById('lblEfSaMonto'); if (elSaM) elSaM.innerText = formatCOP(sa);
+            const elSaP = document.getElementById('lblEfSaPct'); if (elSaP) elSaP.innerText = pctSa.toFixed(1) + '% (' + (pctSa >= 13.0 ? '+' : '') + (pctSa - 13.0).toFixed(1) + ' pts)';
+            const elCartM = document.getElementById('lblEfCartMonto'); if (elCartM) elCartM.innerText = formatCOP(cart);
+            const elCartP = document.getElementById('lblEfCartPct'); if (elCartP) elCartP.innerText = pctCart.toFixed(1) + '% (' + (pctCart >= 33.0 ? '+' : '') + (pctCart - 33.0).toFixed(1) + ' pts)';
+
+            const diasRest = m.reexpresion_gap.dias_habiles_restantes;
+            const gapRest = Math.max(totMeta - recActual, 0);
+            const metaReexp = diasRest > 0 ? Math.round(gapRest / diasRest) : 0;
+            const metaOrig = m.reexpresion_gap.dias_habiles_total > 0 ? Math.round(totMeta / m.reexpresion_gap.dias_habiles_total) : 0;
+            const factExig = metaOrig > 0 ? (metaReexp / metaOrig) : 1.0;
+
+            const bannerMD = document.getElementById('lblBannerMetaDiaria'); if (bannerMD) bannerMD.innerText = formatCOP(metaReexp) + ' / día';
+            const bannerDR = document.getElementById('lblBannerDiasRest'); if (bannerDR) bannerDR.innerText = diasRest + ' días hábiles restantes';
+
+            const elemReexp = document.getElementById('lblReexpresadaMonto'); if (elemReexp) elemReexp.innerText = formatCOP(metaReexp) + ' / día';
+            const elemReexpSub = document.getElementById('lblReexpresadaSub'); if (elemReexpSub) elemReexpSub.innerText = `${formatCOP(gapRest)} / ${diasRest} días restantes`;
+
+            const elemFact = document.getElementById('lblFactorExigencia');
+            if (elemFact) {
+                elemFact.innerText = factExig.toFixed(2) + 'x (' + (factExig > 1.05 ? 'Aceleración Requerida' : 'Velocidad Nominal') + ')';
+                elemFact.className = factExig > 1.05 ? 'text-rose-700 font-bold bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200' : 'text-slate-900 font-bold bg-white px-2.5 py-1 rounded-lg border border-slate-200';
+            }
+        }
+
 
         function setTablaVista(nuevaVista) {
             vistaTablaActual = nuevaVista;
@@ -1752,18 +1918,28 @@
         function onTipoOperacionChange() {
             filtroTipoOperacion = document.getElementById('selectTipoOperacion').value;
             poblarSelectorSedes();
-            actualizarDashboard();
+            refrescarVistaActiva();
         }
 
         function onZonaChange() {
             filtroZona = document.getElementById('selectZona').value;
             poblarSelectorSedes();
-            actualizarDashboard();
+            refrescarVistaActiva();
         }
 
         function onSedeChange() {
             filtroSede = document.getElementById('selectSede').value;
-            actualizarDashboard();
+            refrescarVistaActiva();
+        }
+
+        function refrescarVistaActiva() {
+            if (modoActual === 'KPIS_DIRECCION') {
+                renderKpisDireccion();
+            } else if (modoActual === 'MODELO_EFICACIA') {
+                renderModeloEficacia();
+            } else {
+                actualizarDashboard();
+            }
         }
 
         function formatCOP(monto) {
