@@ -45,6 +45,13 @@
             --dark-text: #1E293B;
             --body-bg: #F8FAFC;
         }
+        html, body {
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
         body {
             background-color: var(--body-bg);
             color: var(--dark-text);
@@ -80,7 +87,7 @@
         }
     </style>
 </head>
-<body class="antialiased min-h-screen p-3 sm:p-5 lg:p-7 select-none">
+<body class="antialiased min-h-screen p-2 sm:p-4 lg:p-6 select-none overflow-x-hidden">
 
     <!-- ============================================================== -->
     <!-- PORTAL DE ACCESO SEGURO MICROSOFT 365 (@dentisalud.com.co)     -->
@@ -214,31 +221,31 @@
             </div>
         </header>
 
-        <!-- SELECTOR DE VISTA (MODO DÍA vs MODO ACUMULADO) Y BARRA DE FILTROS -->
-        <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
+        <!-- SELECTOR DE VISTA Y BARRA DE FILTROS (100% ADAPTABLE A CUALQUIER PANTALLA) -->
+        <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-3.5 sm:p-4 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3 sm:gap-4">
             
-            <!-- TABS DE MODO EJECUTIVO (4 NIVELES ESTRATÉGICOS) -->
-            <div class="flex flex-wrap items-center p-1 bg-slate-100 rounded-xl gap-1 shrink-0">
-                <button id="tabKpis" onclick="cambiarModo('KPIS_DIRECCION')" class="tab-btn px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
-                    <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                    <span>7 KPIs Dirección General</span>
+            <!-- TABS DE MODO EJECUTIVO (CUADRÍCULA 2x2 EN MÓVIL, FLEX EN PANTALLA GRANDE) -->
+            <div class="grid grid-cols-2 lg:flex lg:flex-wrap items-center p-1 bg-slate-100 rounded-xl gap-1.5 w-full xl:w-auto">
+                <button id="tabKpis" onclick="cambiarModo('KPIS_DIRECCION')" class="tab-btn px-2.5 sm:px-3 py-2 rounded-lg text-[11px] sm:text-xs font-bold transition flex items-center justify-center lg:justify-start gap-1.5 cursor-pointer text-center">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    <span class="truncate">7 KPIs Dirección</span>
                 </button>
-                <button id="tabEficacia" onclick="cambiarModo('MODELO_EFICACIA')" class="tab-btn px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
-                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    <span>Modelo 13-54-33 & GAP</span>
+                <button id="tabEficacia" onclick="cambiarModo('MODELO_EFICACIA')" class="tab-btn px-2.5 sm:px-3 py-2 rounded-lg text-[11px] sm:text-xs font-bold transition flex items-center justify-center lg:justify-start gap-1.5 cursor-pointer text-center">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <span class="truncate">Mix Real & GAP</span>
                 </button>
-                <button id="tabAcumulado" onclick="cambiarModo('ACUMULADO')" class="tab-btn active px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-                    <span>Consolidado Mes</span>
+                <button id="tabAcumulado" onclick="cambiarModo('ACUMULADO')" class="tab-btn active px-2.5 sm:px-3 py-2 rounded-lg text-[11px] sm:text-xs font-bold transition flex items-center justify-center lg:justify-start gap-1.5 cursor-pointer text-center">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    <span class="truncate">Consolidado Mes</span>
                 </button>
-                <button id="tabDia" onclick="cambiarModo('DIA')" class="tab-btn px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    <span>Venta del Día</span>
+                <button id="tabDia" onclick="cambiarModo('DIA')" class="tab-btn px-2.5 sm:px-3 py-2 rounded-lg text-[11px] sm:text-xs font-bold transition flex items-center justify-center lg:justify-start gap-1.5 cursor-pointer text-center">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span class="truncate">Venta del Día</span>
                 </button>
             </div>
 
-            <!-- FILTROS: RED PROPIA / FRANQUICIAS, ZONA Y CLÍNICA -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1 max-w-3xl">
+            <!-- FILTROS: RED PROPIA / FRANQUICIAS, ZONA Y CLÍNICA (FLUIDOS Y RESPONSIVE) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 flex-1 w-full max-w-3xl">
                 <!-- 1. Tipo de Operación -->
                 <div>
                     <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Tipo de Operación</label>
@@ -664,133 +671,147 @@
         </div>
 
         <!-- ============================================================== -->
-        <!-- SECCIÓN 2: MODELO EFICACIA 13-54-33 & GAP (DR. ORLANDO FAJARDO) -->
+        <!-- SECCIÓN 2: CÁLCULO REAL DE INGRESOS, EFICACIA Y GAP (DR. ORLANDO) -->
         <!-- ============================================================== -->
-        <div id="contenedorModeloEficacia" class="hidden space-y-6">
+        <div id="contenedorModeloEficacia" class="hidden space-y-4 sm:space-y-6">
             
-            <!-- Banner Presidencial -->
-            <div class="bg-gradient-to-r from-teal-900 via-emerald-800 to-teal-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+            <!-- Banner Presidencial: Cálculo Real Basado en Datos Reales -->
+            <div class="bg-gradient-to-r from-teal-900 via-emerald-800 to-teal-700 rounded-2xl p-4 sm:p-6 text-white shadow-lg relative overflow-hidden">
                 <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
                     <div>
-                        <div class="flex items-center gap-2 mb-2">
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
                             <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-300 text-slate-900">
                                 Presidencia Ejecutiva • Dr. Orlando Fajardo
                             </span>
                             <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white">
-                                Modelo de Eficacia 13-54-33
+                                Cálculo Real Matemático (Sin Supuestos Fijos)
                             </span>
                         </div>
-                        <h2 class="text-xl sm:text-2xl font-bold tracking-tight">Eficacia Comercial, Reexpresión Dinámica del GAP y Citas de Producción</h2>
+                        <h2 class="text-lg sm:text-2xl font-bold tracking-tight">Cálculo Real del Mix de Ingresos, Reexpresión Diaria del GAP y Citas por Sillón</h2>
                         <p class="text-xs sm:text-sm text-teal-100 mt-1 max-w-3xl">
-                            Evaluación rigurosa del mix de recaudo (13% Segundo Abono, 54% Primer Abono, 33% Cartera), reloj dinámico de aceleración del GAP y exigencia diaria de citas por sillón dental.
+                            Evaluación exacta en pesos (\$ COP) y porcentajes reales calculados sobre los datos de la red. Contrapone la realidad matemática de noviembre contra la hipótesis teórica inicial.
                         </p>
                     </div>
-                    <div class="text-right shrink-0 bg-white/10 backdrop-blur-md p-3.5 rounded-xl border border-white/20">
-                        <span class="text-[10px] text-teal-200 uppercase tracking-wider block">Meta Diaria Reexpresada</span>
-                        <div class="text-lg font-bold text-white mt-0.5" id="lblBannerMetaDiaria">$382.7M / día</div>
-                        <span class="text-xs text-teal-100" id="lblBannerDiasRest">21 días hábiles restantes</span>
+                    <div class="text-left md:text-right shrink-0 bg-white/10 backdrop-blur-md p-3 sm:p-3.5 rounded-xl border border-white/20">
+                        <span class="text-[10px] text-teal-200 uppercase tracking-wider block">Meta Diaria Real Reexpresada</span>
+                        <div class="text-base sm:text-lg font-bold text-white mt-0.5" id="lblBannerMetaDiaria">$382.7M / día</div>
+                        <span class="text-[11px] sm:text-xs text-teal-100" id="lblBannerDiasRest">21 días hábiles restantes de 23</span>
                     </div>
                 </div>
             </div>
 
-            <!-- BLOQUE 1: EL MIX 13-54-33 -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-5">
+            <!-- BLOQUE 1: CÁLCULO REAL MATEMÁTICO EN PLATA Y PORCENTAJE (VS ASUNCIÓN TEÓRICA) -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 space-y-4 sm:space-y-5">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
                     <div>
-                        <h3 class="text-sm font-bold text-slate-900">1. Desglose del Mix de Recaudo — Modelo 13-54-33</h3>
-                        <p class="text-xs text-slate-500">Comparativo entre la distribución real del ingreso vs el modelo de sostenibilidad teórica</p>
+                        <h3 class="text-sm font-bold text-slate-900">1. Realidad Matemática del Ingreso — Valores en Pesos ($ COP) y Porcentajes Calculados</h3>
+                        <p class="text-xs text-slate-500">Contraste entre lo que entra en dinero real frente a la hipótesis teórica inicial (54% PA / 13% SA / 33% Cartera)</p>
                     </div>
-                    <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
+                    <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full self-start sm:self-auto">
                         Total Palancas: $1,104.4M COP
                     </span>
                 </div>
 
-                <!-- 3 Tarjetas de los Motores -->
+                <!-- 3 Tarjetas de los Motores con Impacto Real en Dinero -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     
                     <!-- Motor 1: Primer Abono -->
-                    <div class="p-4 rounded-xl border-2 border-blue-500/30 bg-blue-50/20 space-y-3">
+                    <div class="p-4 rounded-xl border-2 border-blue-500/30 bg-blue-50/20 space-y-2.5">
                         <div class="flex items-center justify-between">
                             <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">Primer Abono (PVS)</span>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">Meta: 54.0%</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">Venta Nueva</span>
                         </div>
                         <div class="text-2xl font-black text-slate-900" id="lblEfPaMonto">$737.6M</div>
                         <div class="space-y-1 text-xs">
                             <div class="flex justify-between text-slate-600">
-                                <span>Participación Real:</span>
-                                <strong class="text-blue-700 font-bold" id="lblEfPaPct">66.8% (+12.8 pts)</strong>
+                                <span>% Real Calculado:</span>
+                                <strong class="text-blue-700 font-bold" id="lblEfPaPct">66.8% del ingreso</strong>
                             </div>
                             <div class="flex justify-between text-slate-600">
-                                <span>Ticket Promedio:</span>
-                                <strong class="text-slate-800 font-bold">$3,674,037</strong>
+                                <span>Ticket Promedio Real:</span>
+                                <strong class="text-slate-800 font-bold">$3,674,037 COP</strong>
+                            </div>
+                            <div class="flex justify-between text-slate-600 pt-1 border-t border-blue-100">
+                                <span>Vs Hipótesis 54% ($596.4M):</span>
+                                <strong class="text-emerald-700 font-bold">+$141.2M COP (+12.8 pts)</strong>
                             </div>
                         </div>
-                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden mt-1">
                             <div class="bg-blue-600 h-full rounded-full" style="width: 66.8%"></div>
                         </div>
                     </div>
 
                     <!-- Motor 2: Segundo Abono -->
-                    <div class="p-4 rounded-xl border-2 border-teal-500/30 bg-teal-50/20 space-y-3">
+                    <div class="p-4 rounded-xl border-2 border-teal-500/30 bg-teal-50/20 space-y-2.5">
                         <div class="flex items-center justify-between">
                             <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">Segundo Abono</span>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800">Meta: 13.0%</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800">Continuidad</span>
                         </div>
                         <div class="text-2xl font-black text-slate-900" id="lblEfSaMonto">$165.6M</div>
                         <div class="space-y-1 text-xs">
                             <div class="flex justify-between text-slate-600">
-                                <span>Participación Real:</span>
-                                <strong class="text-teal-700 font-bold" id="lblEfSaPct">15.0% (+2.0 pts)</strong>
+                                <span>% Real Calculado:</span>
+                                <strong class="text-teal-700 font-bold" id="lblEfSaPct">15.0% del ingreso</strong>
                             </div>
                             <div class="flex justify-between text-slate-600">
-                                <span>Ticket Promedio:</span>
-                                <strong class="text-slate-800 font-bold">$44,086</strong>
+                                <span>Ticket Promedio Real:</span>
+                                <strong class="text-slate-800 font-bold">$44,086 COP</strong>
+                            </div>
+                            <div class="flex justify-between text-slate-600 pt-1 border-t border-teal-100">
+                                <span>Vs Hipótesis 13% ($143.6M):</span>
+                                <strong class="text-teal-700 font-bold">+$22.0M COP (+2.0 pts)</strong>
                             </div>
                         </div>
-                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden mt-1">
                             <div class="bg-teal-600 h-full rounded-full" style="width: 15.0%"></div>
                         </div>
                     </div>
 
                     <!-- Motor 3: Cartera -->
-                    <div class="p-4 rounded-xl border-2 border-indigo-500/30 bg-indigo-50/20 space-y-3">
+                    <div class="p-4 rounded-xl border-2 border-indigo-500/30 bg-indigo-50/20 space-y-2.5">
                         <div class="flex items-center justify-between">
                             <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">Recuperación Cartera</span>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">Meta: 33.0%</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">Cobranza</span>
                         </div>
                         <div class="text-2xl font-black text-slate-900" id="lblEfCartMonto">$201.2M</div>
                         <div class="space-y-1 text-xs">
                             <div class="flex justify-between text-slate-600">
-                                <span>Participación Real:</span>
-                                <strong class="text-rose-600 font-bold" id="lblEfCartPct">18.2% (-14.8 pts)</strong>
+                                <span>% Real Calculado:</span>
+                                <strong class="text-rose-600 font-bold" id="lblEfCartPct">18.2% del ingreso</strong>
                             </div>
                             <div class="flex justify-between text-slate-600">
-                                <span>Ticket Promedio:</span>
-                                <strong class="text-slate-800 font-bold">$3,003,301</strong>
+                                <span>Ticket Promedio Real:</span>
+                                <strong class="text-slate-800 font-bold">$3,003,301 COP</strong>
+                            </div>
+                            <div class="flex justify-between text-slate-600 pt-1 border-t border-indigo-100">
+                                <span>Vs Hipótesis 33% ($364.5M):</span>
+                                <strong class="text-rose-600 font-bold">-$163.2M COP (-14.8 pts)</strong>
                             </div>
                         </div>
-                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden mt-1">
                             <div class="bg-indigo-600 h-full rounded-full" style="width: 18.2%"></div>
                         </div>
                     </div>
 
                 </div>
 
-                <!-- Barra Visual Comparativa Stack -->
-                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                    <div class="flex justify-between text-xs font-semibold text-slate-700">
-                        <span>Distribución Actual del Mix Real:</span>
+                <!-- Barra Visual Comparativa Stack y Conclusión en Dinero Real -->
+                <div class="p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                    <div class="flex flex-wrap justify-between text-xs font-semibold text-slate-700 gap-1">
+                        <span>Distribución Matemática Real Calculada:</span>
                         <span>Primer Abono (66.8%) • Segundo Abono (15.0%) • Cartera (18.2%)</span>
                     </div>
-                    <div class="w-full h-4 rounded-full overflow-hidden flex">
+                    <div class="w-full h-3 sm:h-4 rounded-full overflow-hidden flex">
                         <div class="bg-[#0062C3]" style="width: 66.8%" title="Primer Abono: 66.8%"></div>
                         <div class="bg-[#00A896]" style="width: 15.0%" title="Segundo Abono: 15.0%"></div>
                         <div class="bg-[#4338CA]" style="width: 18.2%" title="Cartera: 18.2%"></div>
                     </div>
-                    <div class="flex justify-between text-[11px] text-slate-500 pt-1">
-                        <span>Meta Teórica Orlando Fajardo: <strong>54% PA | 13% SA | 33% Cartera</strong></span>
-                        <span class="text-amber-700 font-medium">Diagnóstico: Alta venta inicial, pero se debe acelerar la recuperación de cartera en 14.8 puntos.</span>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-slate-600 pt-1 gap-1">
+                        <span>Hipótesis Inicial Presidencial: <strong>54% PA | 13% SA | 33% Cartera</strong></span>
+                        <span class="text-amber-800 font-bold bg-amber-50 p-1 rounded border border-amber-200">
+                            Conclusión: La venta nueva supera la expectativa (+141.2M), pero la cartera tiene un rezago real de -$163.2M.
+                        </span>
                     </div>
                 </div>
             </div>
@@ -1868,11 +1889,11 @@
             const pctCart = totalPal > 0 ? (cart / totalPal) * 100 : 0;
 
             const elPaM = document.getElementById('lblEfPaMonto'); if (elPaM) elPaM.innerText = formatCOP(pa);
-            const elPaP = document.getElementById('lblEfPaPct'); if (elPaP) elPaP.innerText = pctPa.toFixed(1) + '% (' + (pctPa >= 54.0 ? '+' : '') + (pctPa - 54.0).toFixed(1) + ' pts)';
+            const elPaP = document.getElementById('lblEfPaPct'); if (elPaP) elPaP.innerText = pctPa.toFixed(1) + '% del ingreso total';
             const elSaM = document.getElementById('lblEfSaMonto'); if (elSaM) elSaM.innerText = formatCOP(sa);
-            const elSaP = document.getElementById('lblEfSaPct'); if (elSaP) elSaP.innerText = pctSa.toFixed(1) + '% (' + (pctSa >= 13.0 ? '+' : '') + (pctSa - 13.0).toFixed(1) + ' pts)';
+            const elSaP = document.getElementById('lblEfSaPct'); if (elSaP) elSaP.innerText = pctSa.toFixed(1) + '% del ingreso total';
             const elCartM = document.getElementById('lblEfCartMonto'); if (elCartM) elCartM.innerText = formatCOP(cart);
-            const elCartP = document.getElementById('lblEfCartPct'); if (elCartP) elCartP.innerText = pctCart.toFixed(1) + '% (' + (pctCart >= 33.0 ? '+' : '') + (pctCart - 33.0).toFixed(1) + ' pts)';
+            const elCartP = document.getElementById('lblEfCartPct'); if (elCartP) elCartP.innerText = pctCart.toFixed(1) + '% del ingreso total';
 
             const diasRest = m.reexpresion_gap.dias_habiles_restantes;
             const gapRest = Math.max(totMeta - recActual, 0);
@@ -1881,7 +1902,7 @@
             const factExig = metaOrig > 0 ? (metaReexp / metaOrig) : 1.0;
 
             const bannerMD = document.getElementById('lblBannerMetaDiaria'); if (bannerMD) bannerMD.innerText = formatCOP(metaReexp) + ' / día';
-            const bannerDR = document.getElementById('lblBannerDiasRest'); if (bannerDR) bannerDR.innerText = diasRest + ' días hábiles restantes';
+            const bannerDR = document.getElementById('lblBannerDiasRest'); if (bannerDR) bannerDR.innerText = diasRest + ' días hábiles restantes de 23';
 
             const elemReexp = document.getElementById('lblReexpresadaMonto'); if (elemReexp) elemReexp.innerText = formatCOP(metaReexp) + ' / día';
             const elemReexpSub = document.getElementById('lblReexpresadaSub'); if (elemReexpSub) elemReexpSub.innerText = `${formatCOP(gapRest)} / ${diasRest} días restantes`;
